@@ -11,17 +11,13 @@ public class User
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // AUTOINCREMENT for Id
     public int Id {get; set;}
-    [Required]
     [StringLength(9)]
-    public required string Dni {get; set;}
-    [Required]
+    public string? Dni {get; set;}
     [StringLength(50)]
-    public required string Name {get; set;}
-    [Required]
+    public string? Name {get; set;}
     [StringLength(50)]
-    public required string Surname {get; set;}
+    public string? Surname {get; set;}
     public DateOnly Birthdate {get; set;}
-    [Required]
     [StringLength(100)]
     public string? Address {get; set;}
     [StringLength(20)]
