@@ -24,7 +24,7 @@ namespace Control_Usuarios.Controllers
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            return UserExists(id) ? user : NotFound("User not found");
+            return user != null ? user : NotFound("User not found.");
         }
 
         // POST: api/User
