@@ -80,6 +80,7 @@ namespace Control_Usuarios.Controllers
             user.Email ??= string.Empty;
             user.Address ??= string.Empty;
             user.Phone ??= string.Empty;
+            user.TypesMembershipId = user.TypesMembershipId < 0? 0 : user.TypesMembershipId;
             user.Birthdate = user.Birthdate == default ? DateOnly.MinValue : user.Birthdate;
         }
         private void UpdateValues(User user, User newUserData)
@@ -90,6 +91,7 @@ namespace Control_Usuarios.Controllers
             user.Email = !string.IsNullOrEmpty(newUserData.Email) ? newUserData.Email : user.Email;
             user.Address = !string.IsNullOrEmpty(newUserData.Address) ? newUserData.Address : user.Address;
             user.Phone = !string.IsNullOrEmpty(newUserData.Phone) ? newUserData.Phone : user.Phone;
+            user.TypesMembershipId = newUserData.TypesMembershipId < 0? 0 : newUserData.TypesMembershipId;
             user.Birthdate = newUserData.Birthdate != default ? newUserData.Birthdate : user.Birthdate;
         }
     }
