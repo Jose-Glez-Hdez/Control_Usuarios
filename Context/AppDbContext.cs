@@ -10,6 +10,7 @@ namespace Control_Usuarios.Context
         // DbSets representan las tablas de la base de datos
         public DbSet<User> Users { get; set; }
         public DbSet<TypesMembership> TypesMemberships { get; set; }
+        public DbSet<Membership> Memberships { get; set; }
     }
 
     public class DbContextServices<T>
