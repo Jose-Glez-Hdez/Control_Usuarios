@@ -68,8 +68,8 @@ namespace Control_Usuarios.Controllers
         {
             typeMembership.Name = !string.IsNullOrEmpty(newTypeMembership.Name)? newTypeMembership.Name : typeMembership.Name;
             typeMembership.Info =!string.IsNullOrEmpty(newTypeMembership.Info)? newTypeMembership.Info : typeMembership.Info;
-            typeMembership.Price = newTypeMembership.Price ?? typeMembership.Price;
-            typeMembership.Duration = newTypeMembership.Duration ?? typeMembership.Duration;
+            typeMembership.Price = typeMembership.Price != default? newTypeMembership.Price : typeMembership.Price;
+            typeMembership.Duration = typeMembership.Duration!= default? newTypeMembership.Duration : typeMembership.Duration;
         }
 
         private void SetDefaultValues(TypesMembership typeMembership)

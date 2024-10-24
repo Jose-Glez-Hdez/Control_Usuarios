@@ -31,9 +31,44 @@ namespace Control_Usuarios.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, User);
+            using var transaction = await _context.Database.BeginTransactionAsync();  // Iniciar la transacción
+            try
+            {
+                // Verificar que el TypesMembershipId sea válido
+                var typesMembership = await _context.TypesMemberships
+                    .FirstOrDefaultAsync(tm => tm.Id == user.TypesMembershipId);
+                if (typesMembership == null)
+                {
+                    return BadRequest(new { Message = "Invalid membership type." });
+                }
+
+                // Crear el usuario
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();  // Guardar el usuario para obtener el UserId
+
+                // Crear un registro de membresía para este usuario
+                var membership = new Membership
+                {
+                    UserId = user.Id,                          // ID del usuario recién creado
+                    TypesMembershipId = user.TypesMembershipId, // Tipo de membresía asignado
+                    StartDate = DateTime.Now,                  // Fecha de inicio de la membresía
+                    EndDate = DateTime.Now.AddDays(typesMembership.Duration),      // Duración de un año
+                    IsActive = true                            // La membresía está activa
+                };
+
+                _context.Memberships.Add(membership);
+                await _context.SaveChangesAsync();  // Guardar la membresía
+
+                // Confirmar la transacción
+                await transaction.CommitAsync();
+
+                return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();  // Deshacer la transacción si algo falla
+                throw;
+            }
         }
 
         // PUT: api/User/{id}
@@ -46,7 +81,6 @@ namespace Control_Usuarios.Controllers
             if (user == null) return NotFound("User not found");
 
             SetDefaultValues(newUserData);
-
 
             UpdateValues(user, newUserData);
 
@@ -80,7 +114,7 @@ namespace Control_Usuarios.Controllers
             user.Email ??= string.Empty;
             user.Address ??= string.Empty;
             user.Phone ??= string.Empty;
-            user.TypesMembershipId = user.TypesMembershipId < 0? 0 : user.TypesMembershipId;
+            user.TypesMembershipId = user.TypesMembershipId < 0 ? 0 : user.TypesMembershipId;
             user.Birthdate = user.Birthdate == default ? DateOnly.MinValue : user.Birthdate;
         }
         private void UpdateValues(User user, User newUserData)
@@ -91,7 +125,7 @@ namespace Control_Usuarios.Controllers
             user.Email = !string.IsNullOrEmpty(newUserData.Email) ? newUserData.Email : user.Email;
             user.Address = !string.IsNullOrEmpty(newUserData.Address) ? newUserData.Address : user.Address;
             user.Phone = !string.IsNullOrEmpty(newUserData.Phone) ? newUserData.Phone : user.Phone;
-            user.TypesMembershipId = newUserData.TypesMembershipId < 0? 0 : newUserData.TypesMembershipId;
+            user.TypesMembershipId = newUserData.TypesMembershipId < 0 ? 0 : newUserData.TypesMembershipId;
             user.Birthdate = newUserData.Birthdate != default ? newUserData.Birthdate : user.Birthdate;
         }
     }
