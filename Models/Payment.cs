@@ -8,9 +8,12 @@ public class Payment
     public int Id { get; set; }
     [ForeignKey("UserId")]
     public int UserId { get; set; }
+    [ForeignKey("TypeMembershipId")]
+    public int TypeMembershipId { get; set; }
     public required DateTime DatePay { get; set; }
     public required decimal Amount { get; set; }
     public required string PaymentMethod { get; set; }
     public required bool IsPaid { get; set; }
     public User? User { get; set; }
+    public TypesMembership? TypesMembership { get; set; }
 }

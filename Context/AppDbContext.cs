@@ -11,6 +11,7 @@ namespace Control_Usuarios.Context
         public DbSet<User> Users { get; set; }
         public DbSet<TypesMembership> TypesMemberships { get; set; }
         public DbSet<Membership> Memberships { get; set; }
+        public DbSet<Payment> Payments { get; set; }
     }
 
     public class DbContextServices<T>
