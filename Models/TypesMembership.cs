@@ -10,7 +10,6 @@ public class TypesMembership
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // AUTOINCREMENT for Id
-    [StringLength(50)]
     public int Id { get; set; }
     [StringLength(50)]
     public string Name { get; set; }
