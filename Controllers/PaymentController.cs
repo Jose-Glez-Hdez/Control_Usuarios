@@ -31,7 +31,7 @@ public class PaymentController (AppDbContext context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Payment>> CreatePayment(Payment payment)
     {
-        _context.Payments.Add(payment); // Add error handling for null values
+        _context.Payments.Add(payment);
         await _context.SaveChangesAsync();
         return CreatedAtAction("GetPaymentByUserId", new { userId = payment.UserId }, payment);
     }
