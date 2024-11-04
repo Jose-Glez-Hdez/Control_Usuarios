@@ -31,10 +31,9 @@ namespace Control_Usuarios.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();  // Iniciar la transacción
+            using var transaction = await _context.Database.BeginTransactionAsync(); 
             try
             {
-                // Verificar que el TypesMembershipId sea válido
                 var typesMembership = await _context.TypesMemberships
                     .FirstOrDefaultAsync(tm => tm.Id == user.TypesMembershipId);
                 if (typesMembership == null)
@@ -42,31 +41,26 @@ namespace Control_Usuarios.Controllers
                     return BadRequest(new { Message = "Invalid membership type." });
                 }
 
-                // Crear el usuario
                 _context.Users.Add(user);
-                await _context.SaveChangesAsync();  // Guardar el usuario para obtener el UserId
-
-                // Crear un registro de membresía para este usuario
+                await _context.SaveChangesAsync();
                 var membership = new Membership
                 {
-                    UserId = user.Id,                          // ID del usuario recién creado
-                    TypesMembershipId = user.TypesMembershipId, // Tipo de membresía asignado
-                    StartDate = DateTime.Now,                  // Fecha de inicio de la membresía
-                    EndDate = DateTime.Now.AddDays(typesMembership.Duration),      // Duración de un año
-                    IsActive = true                            // La membresía está activa
+                    UserId = user.Id,
+                    TypesMembershipId = user.TypesMembershipId,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddDays(typesMembership.Duration),
+                    IsActive = true
                 };
 
                 _context.Memberships.Add(membership);
-                await _context.SaveChangesAsync();  // Guardar la membresía
-
-                // Confirmar la transacción
+                await _context.SaveChangesAsync(); 
                 await transaction.CommitAsync();
 
                 return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
             }
             catch (Exception)
             {
-                await transaction.RollbackAsync();  // Deshacer la transacción si algo falla
+                await transaction.RollbackAsync(); 
                 throw;
             }
         }

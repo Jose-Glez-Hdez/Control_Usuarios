@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,7 +6,7 @@ namespace Control_Usuarios.Models;
 public class Membership
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Autoincremental
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int MembershipId { get; set; }
     
     public int UserId { get; set; }

@@ -1,7 +1,5 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Control_Usuarios.Models;
 
@@ -9,7 +7,7 @@ namespace Control_Usuarios.Models;
 public class User
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // AUTOINCREMENT for Id
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     [StringLength(9)]
     public string? Dni { get; set; }

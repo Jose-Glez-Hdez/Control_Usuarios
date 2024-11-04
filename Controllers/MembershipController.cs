@@ -17,11 +17,10 @@ public class MembershipController(AppDbContext context) : ControllerBase
     public async Task<ActionResult<IEnumerable<object>>> GetMemberships()
     {
         var memberships = await _context.Memberships
-            .Include(m => m.User)                      // Incluir la relación con User
-            .Include(m => m.TypesMembership)           // Incluir la relación con TypesMembership
+            .Include(m => m.User)                      // Include the relation with User.
+            .Include(m => m.TypesMembership)           // Include the relation with TypesMembership.
             .ToListAsync();
 
-        // Actualizar IsActive si EndDate ha pasado
         foreach (var membership in memberships)
         {
             if (membership.EndDate < DateTime.Now && membership.IsActive)
@@ -30,10 +29,8 @@ public class MembershipController(AppDbContext context) : ControllerBase
             }
         }
 
-        // Guardar los cambios en la base de datos si hubo modificaciones
         await _context.SaveChangesAsync();
 
-        // Proyectar los resultados
         var result = memberships.Select(m => new
         {
             m.MembershipId,
@@ -52,17 +49,16 @@ public class MembershipController(AppDbContext context) : ControllerBase
     public async Task<ActionResult<IEnumerable<object>>> GetMembershipsByUser(int userId)
     {
         var memberships = await _context.Memberships
-            .Include(m => m.User)                      // Incluir la relación con User
-            .Include(m => m.TypesMembership)           // Incluir la relación con TypesMembership
-            .Where(m => m.UserId == userId)            // Filtrar por el UserId pasado en el endpoint
+            .Include(m => m.User)
+            .Include(m => m.TypesMembership)
+            .Where(m => m.UserId == userId)
             .Select(m => new
             {
                 m.MembershipId,
-                UserName = m.User.Name,                // Usar el nombre del usuario en lugar de UserId
-                MembershipType = m.TypesMembership.Name,  // Usar el nombre del tipo de membresía
+                UserName = m.User.Name,                // Use the name of the user instead of UserId.
+                MembershipType = m.TypesMembership.Name,  // Use the name of the membership type instead of TypesMembershipId.
                 m.StartDate,
                 m.EndDate,
-                // Verificar si EndDate ha pasado y actualizar IsActive
                 IsActive = m.EndDate < DateTime.Now ? false : m.IsActive
             })
             .ToListAsync();
@@ -79,10 +75,8 @@ public class MembershipController(AppDbContext context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<object>> PostMembership(Membership membership)
     {
-        // Asignar la fecha actual a StartDate
         membership.StartDate = DateTime.Now;
 
-        // Obtener la duración de TypesMembership y calcular EndDate
         var typesMembership = await _context.TypesMemberships
             .FirstOrDefaultAsync(tm => tm.Id == membership.TypesMembershipId);
         if (typesMembership == null)
@@ -90,26 +84,22 @@ public class MembershipController(AppDbContext context) : ControllerBase
             return BadRequest(new { Message = "Invalid membership type." });
         }
 
-        // Calcular EndDate basado en la duración
         membership.EndDate = membership.StartDate.AddDays((double)typesMembership.Duration);
         membership.IsActive = true;
 
-        // Agregar la membresía y guardar en la base de datos
         _context.Memberships.Add(membership);
         await _context.SaveChangesAsync();
 
-        // Obtener el nombre del usuario asociado al UserId
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == membership.UserId);
         if (user == null)
         {
             return BadRequest(new { Message = "User not found." });
         }
 
-        // Devolver la información de la membresía junto con el nombre del usuario
         var result = new
         {
             membership.MembershipId,
-            UserName = user.Name,  // Devolver el nombre del usuario
+            UserName = user.Name, 
             MembershipType = typesMembership.Name,
             membership.StartDate,
             membership.EndDate,
@@ -134,7 +124,6 @@ public class MembershipController(AppDbContext context) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutMembership(int id, Membership updatedMembership)
     {
-        // Buscar la entidad original en la base de datos
         var existingMembership = await _context.Memberships
             .FirstOrDefaultAsync(m => m.MembershipId == id);
 
@@ -143,16 +132,8 @@ public class MembershipController(AppDbContext context) : ControllerBase
             return NotFound(new { Message = "Membership not found" });
         }
 
-        // Actualizar las propiedades solo si son válidas o no están vacías
-        existingMembership.UserId = updatedMembership.UserId != 0 ? updatedMembership.UserId : existingMembership.UserId;
-        existingMembership.TypesMembershipId = updatedMembership.TypesMembershipId != 0 ? updatedMembership.TypesMembershipId : existingMembership.TypesMembershipId;
-
-        existingMembership.StartDate = updatedMembership.StartDate != DateTime.MinValue ? updatedMembership.StartDate : existingMembership.StartDate;
-        existingMembership.EndDate = updatedMembership.EndDate != DateTime.MinValue ? updatedMembership.EndDate : existingMembership.EndDate;
-
-        existingMembership.IsActive = updatedMembership.IsActive;
-
-        // Guardar los cambios en la base de datos
+        UpdateMembership(existingMembership, updatedMembership);
+        
         try
         {
             await _context.SaveChangesAsync();
@@ -170,6 +151,17 @@ public class MembershipController(AppDbContext context) : ControllerBase
         }
 
         return Ok(existingMembership);
+    }
+
+    private void UpdateMembership(Membership existingMembership, Membership updatedMembership)
+    {
+        existingMembership.UserId = updatedMembership.UserId != 0 ? updatedMembership.UserId : existingMembership.UserId;
+        existingMembership.TypesMembershipId = updatedMembership.TypesMembershipId != 0 ? updatedMembership.TypesMembershipId : existingMembership.TypesMembershipId;
+
+        existingMembership.StartDate = updatedMembership.StartDate != DateTime.MinValue ? updatedMembership.StartDate : existingMembership.StartDate;
+        existingMembership.EndDate = updatedMembership.EndDate != DateTime.MinValue ? updatedMembership.EndDate : existingMembership.EndDate;
+
+        existingMembership.IsActive = updatedMembership.IsActive;
     }
 
     // Método auxiliar para comprobar si una membresía existe
