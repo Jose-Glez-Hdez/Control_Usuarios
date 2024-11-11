@@ -33,7 +33,7 @@ public class MembershipController(AppDbContext context) : ControllerBase
 
         var result = memberships.Select(m => new
         {
-            m.MembershipId,
+            m.Id,
             UserName = m.User.Name,
             MembershipType = m.TypesMembership.Name,
             m.StartDate,
@@ -54,7 +54,7 @@ public class MembershipController(AppDbContext context) : ControllerBase
             .Where(m => m.UserId == userId)
             .Select(m => new
             {
-                m.MembershipId,
+                m.Id,
                 UserName = m.User.Name,                // Use the name of the user instead of UserId.
                 MembershipType = m.TypesMembership.Name,  // Use the name of the membership type instead of TypesMembershipId.
                 m.StartDate,
@@ -98,7 +98,7 @@ public class MembershipController(AppDbContext context) : ControllerBase
 
         var result = new
         {
-            membership.MembershipId,
+            membership.Id,
             UserName = user.Name, 
             MembershipType = typesMembership.Name,
             membership.StartDate,
@@ -125,7 +125,7 @@ public class MembershipController(AppDbContext context) : ControllerBase
     public async Task<IActionResult> PutMembership(int id, Membership updatedMembership)
     {
         var existingMembership = await _context.Memberships
-            .FirstOrDefaultAsync(m => m.MembershipId == id);
+            .FirstOrDefaultAsync(m => m.Id == id);
 
         if (existingMembership == null)
         {
@@ -167,7 +167,7 @@ public class MembershipController(AppDbContext context) : ControllerBase
     // Método auxiliar para comprobar si una membresía existe
     private bool MembershipExists(int id)
     {
-        return _context.Memberships.Any(e => e.MembershipId == id);
+        return _context.Memberships.Any(e => e.Id == id);
     }
 
 }
