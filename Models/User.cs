@@ -26,7 +26,7 @@ public class User
     [Required]
     public DateOnly RegisterDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
-    [ForeignKey("TypesMembership")]
-    public int TypesMembershipId { get; set; } 
+    [ForeignKey("Membership")]
+    public int MembershipId { get; set; } 
     public TypesMembership? TypesMembership { get; set; }
 }

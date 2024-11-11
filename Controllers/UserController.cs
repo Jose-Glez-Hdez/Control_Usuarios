@@ -35,7 +35,7 @@ namespace Control_Usuarios.Controllers
             try
             {
                 var typesMembership = await _context.TypesMemberships
-                    .FirstOrDefaultAsync(tm => tm.Id == user.TypesMembershipId);
+                    .FirstOrDefaultAsync(tm => tm.Id == user.MembershipId);
                 if (typesMembership == null)
                 {
                     return BadRequest(new { Message = "Invalid membership type." });
@@ -46,7 +46,7 @@ namespace Control_Usuarios.Controllers
                 var membership = new Membership
                 {
                     UserId = user.Id,
-                    TypesMembershipId = user.TypesMembershipId,
+                    TypesMembershipId = user.MembershipId,
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddDays(typesMembership.Duration),
                     IsActive = true
@@ -108,7 +108,7 @@ namespace Control_Usuarios.Controllers
             user.Email ??= string.Empty;
             user.Address ??= string.Empty;
             user.Phone ??= string.Empty;
-            user.TypesMembershipId = user.TypesMembershipId < 0 ? 0 : user.TypesMembershipId;
+            user.MembershipId = user.MembershipId < 0 ? 0 : user.MembershipId;
             user.Birthdate = user.Birthdate == default ? DateOnly.MinValue : user.Birthdate;
         }
         private void UpdateValues(User user, User newUserData)
@@ -119,7 +119,7 @@ namespace Control_Usuarios.Controllers
             user.Email = !string.IsNullOrEmpty(newUserData.Email) ? newUserData.Email : user.Email;
             user.Address = !string.IsNullOrEmpty(newUserData.Address) ? newUserData.Address : user.Address;
             user.Phone = !string.IsNullOrEmpty(newUserData.Phone) ? newUserData.Phone : user.Phone;
-            user.TypesMembershipId = newUserData.TypesMembershipId < 0 ? 0 : newUserData.TypesMembershipId;
+            user.MembershipId = newUserData.MembershipId < 0 ? 0 : newUserData.MembershipId;
             user.Birthdate = newUserData.Birthdate != default ? newUserData.Birthdate : user.Birthdate;
         }
     }
